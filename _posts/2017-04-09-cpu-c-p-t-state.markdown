@@ -22,4 +22,4 @@ to ![cpu-c-states-img][cpu-c-states-img], there are more states..
 
 [intel-t-state]:https://software.intel.com/en-us/blogs/2013/10/15/c-states-p-states-where-the-heck-are-those-t-states
 [intel-p-c-state]:https://software.intel.com/en-us/articles/power-management-states-p-states-c-states-and-package-c-states
-[cpu-c-states-img]:https://github.com/sansna/sansna.github.io/blob/master/_pic/cpu-c-states.png
+[cpu-c-states-img]:https://raw.githubusercontent.com/sansna/sansna.github.io/master/_pic/cpu-c-states.png
