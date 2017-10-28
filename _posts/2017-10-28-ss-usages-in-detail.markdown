@@ -47,29 +47,21 @@ Normal usage: `ss-redir -s -p -m -k -b -l -u -v &`
 
 How to use iptables together with ss-tunnel & ss-redir ?
 
-Quote from [他山之石][ss-manual].
+Quote from [zfl9][ss-manual].
 {% highlight bash %}
-# 安装 ipset
-## ArchLinux
 pacman -S --need ipset
-## CentOS
 yum install ipset -y
 
-# 获取大陆地址段
 curl -sL http://f.ip.cn/rt/chnroutes.txt | egrep -v '^$|^#' > chinaip.txt
 
-# 添加 chinaip 表
 ipset -N chinaip hash:net
 for i in `cat chinaip.txt`; do echo ipset -A chinaip $i >> chinaip.sh; done
 bash chinaip.sh
 
-# 持久化 chinaip 表
 ipset -S > /etc/ipset.chinaip
 
-# 新建 shadowsocks 链
 iptables -t nat -N shadowsocks
 
-# 放行保留地址、环回地址、特殊地址
 iptables -t nat -A shadowsocks -d 0/8 -j RETURN
 iptables -t nat -A shadowsocks -d 127/8 -j RETURN
 iptables -t nat -A shadowsocks -d 10/8 -j RETURN
@@ -79,41 +71,28 @@ iptables -t nat -A shadowsocks -d 192.168/16 -j RETURN
 iptables -t nat -A shadowsocks -d 224/4 -j RETURN
 iptables -t nat -A shadowsocks -d 240/4 -j RETURN
 
-# 放行发往 ss 服务器的数据包
-iptables -t nat -A shadowsocks -d 1.2.3.4 -j RETURN # 替换1.2.3.4为你的服务器地址
+iptables -t nat -A shadowsocks -d 1.2.3.4 -j RETURN
 
-# 放行大陆地址
 iptables -t nat -A shadowsocks -m set --match-set chinaip dst -j RETURN
 
-# 重定向 tcp 数据包至 1080 监听端口
 iptables -t nat -A shadowsocks -p tcp -j REDIRECT --to-ports 1080
 
-# 重定向除 dns 外的 udp 数据包至 1080 监听端口
 iptables -t nat -A shadowsocks -p udp ! --dport 53 -j REDIRECT --to-ports 1080
 
-# 本机 tcp 数据包流经 shadowsocks 链
 iptables -t nat -A OUTPUT -p tcp -j shadowsocks
 
-# 本机除 dns 外的 udp 数据包流经 shadowsocks 链
 iptables -t nat -A OUTPUT -p udp ! --dport 53 -j shadowsocks
 
-# 内网 tcp 数据包流经 shadowsocks 链
 iptables -t nat -A PREROUTING -p tcp -s 192.168/16 -j shadowsocks
 
-# 内网除 dns 外的 udp 数据包流经 shadowsocks 链
 iptables -t nat -A PREROUTING -p udp ! --dport 53 -s 192.168/16 -j shadowsocks
 
-# 开启内核网卡转发功能
-## 查看是否已开启：
-cat /proc/sys/net/ipv4/ip_forward # 如果值为1，表示已开启
-## 若为0，则进行此步骤：
+cat /proc/sys/net/ipv4/ip_forward
 echo 'net.ipv4.ip_forward = 1' >> /etc/sysctl.conf
 sysctl -p
 
-# 内网数据包源NAT
 iptables -t nat -A POSTROUTING -s 192.168/16 -j MASQUERADE
 
-# 持久化 iptables 规则
 iptables-save > /etc/iptables.shadowsocks
 {% endhighlight %}
 
