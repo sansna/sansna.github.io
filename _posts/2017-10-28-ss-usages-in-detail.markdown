@@ -115,7 +115,7 @@ iptables -t nat -A POSTROUTING -s 192.168/16 -j MASQUERADE
 
 # 持久化 iptables 规则
 iptables-save > /etc/iptables.shadowsocks
-{% endlight %}
+{% endhighlight %}
 
 [ss-github]:https://github.com/shadowsocks/shadowsocks-libev
 [ss-manual]:https://www.zfl9.com/ss-redir.html
